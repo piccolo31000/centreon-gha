@@ -133,20 +133,9 @@ function isUserAdmin($sid = null)
 }
 
 
-function myDecode($data)
+function myDecode($arg)
 {
-    if (is_string($data)) {
-        $data = html_entity_decode($data, ENT_QUOTES, "UTF-8");
-    }
-    return $data;
-}
-
-function myEncode($data)
-{
-    if (is_string($data)) {
-        $data = htmlentities($data);
-    }
-    return $data;
+    return html_entity_decode($arg, ENT_QUOTES, "UTF-8");
 }
 
 
