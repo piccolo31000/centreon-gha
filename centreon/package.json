@@ -119,7 +119,7 @@
     "@dnd-kit/utilities": "^3.2.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@lexical/html": "^0.12.2",
+    "@lexical/html": "^0.13.1",
     "@module-federation/utilities": "3.0.0",
     "@mui/icons-material": "^5.14.13",
     "@mui/lab": "^5.0.0-alpha.148",
