@@ -129,7 +129,7 @@
     "@visx/shape": "^3.5.0",
     "@visx/text": "^3.3.0",
     "@visx/threshold": "^3.5.0",
-    "@visx/visx": "3.11.0",
+    "@visx/visx": "3.12.0",
     "@visx/zoom": "^3.3.0",
     "anylogger": "^1.0.11",
     "d3-array": "3.2.4",
