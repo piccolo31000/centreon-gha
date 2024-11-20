@@ -135,7 +135,7 @@
     "d3-array": "3.2.4",
     "dayjs": "^1.11.12",
     "humanize-duration": "^3.32.1",
-    "lexical": "^0.17.0",
+    "lexical": "^0.20.0",
     "notistack": "^3.0.1",
     "numeral": "^2.0.6",
     "ramda": "0.30.1",
