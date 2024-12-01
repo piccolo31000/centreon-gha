@@ -113,7 +113,7 @@
     "@lexical/react": "^0.17.0",
     "@lexical/rich-text": "^0.17.0",
     "@lexical/selection": "^0.17.0",
-    "@lexical/utils": "^0.17.0",
+    "@lexical/utils": "^0.20.1",
     "@mui/material": "^5.16.7",
     "@react-spring/web": "^9.7.4",
     "@visx/clip-path": "^3.3.0",
