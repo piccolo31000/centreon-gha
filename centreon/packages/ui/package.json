@@ -111,7 +111,7 @@
     "@lexical/link": "^0.17.0",
     "@lexical/list": "^0.17.0",
     "@lexical/react": "^0.17.0",
-    "@lexical/rich-text": "^0.17.0",
+    "@lexical/rich-text": "^0.21.0",
     "@lexical/selection": "^0.17.0",
     "@lexical/utils": "^0.17.0",
     "@mui/material": "^5.16.7",
