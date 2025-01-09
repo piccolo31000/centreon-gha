@@ -51,7 +51,7 @@
   ],
   "devDependencies": {
     "@cypress/react": "^8.0.2",
-    "@cypress/webpack-dev-server": "^3.10.1",
+    "@cypress/webpack-dev-server": "^4.0.0",
     "@faker-js/faker": "^8.4.1",
     "@mdx-js/react": "^3.0.1",
     "@simonsmith/cypress-image-snapshot": "^9.1.0",
