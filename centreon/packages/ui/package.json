@@ -136,7 +136,7 @@
     "highlight.js": "^11.10.0",
     "html-react-parser": "^5.1.12",
     "humanize-duration": "^3.32.1",
-    "lexical": "^0.17.0",
+    "lexical": "^0.24.0",
     "notistack": "^3.0.1",
     "numeral": "^2.0.6",
     "ramda": "0.30.1",
