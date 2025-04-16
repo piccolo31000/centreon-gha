@@ -98,7 +98,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@lexical/html": "^0.21.0",
-    "@module-federation/utilities": "^3.1.35",
+    "@module-federation/utilities": "^3.1.52",
     "@mui/icons-material": "^6.2.0",
     "@mui/lab": "6.0.0-beta.19",
     "@mui/material": "^6.2.0",
