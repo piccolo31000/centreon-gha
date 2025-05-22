@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89685a9df17de7b34f36bd857a1e5ef6",
+    "content-hash": "22ebd47abaafc2242335e8ece9e418b3",
     "packages": [
         {
             "name": "amphp/amp",
@@ -12259,16 +12259,16 @@
         },
         {
             "name": "robertfausk/mink-panther-driver",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/robertfausk/mink-panther-driver.git",
-                "reference": "52aa735bc0cf05f5fd9406f4da56136b00b9c5cb"
+                "reference": "ac95116505015a43af687220a8e00cefabd34dc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/robertfausk/mink-panther-driver/zipball/52aa735bc0cf05f5fd9406f4da56136b00b9c5cb",
-                "reference": "52aa735bc0cf05f5fd9406f4da56136b00b9c5cb",
+                "url": "https://api.github.com/repos/robertfausk/mink-panther-driver/zipball/ac95116505015a43af687220a8e00cefabd34dc0",
+                "reference": "ac95116505015a43af687220a8e00cefabd34dc0",
                 "shasum": ""
             },
             "require": {
@@ -12323,9 +12323,9 @@
             ],
             "support": {
                 "issues": "https://github.com/robertfausk/mink-panther-driver/issues",
-                "source": "https://github.com/robertfausk/mink-panther-driver/tree/v1.1.1"
+                "source": "https://github.com/robertfausk/mink-panther-driver/tree/v1.1.2"
             },
-            "time": "2024-04-18T10:43:40+00:00"
+            "time": "2025-04-03T21:55:18+00:00"
         },
         {
             "name": "sebastian/cli-parser",
