@@ -24,7 +24,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
  * This file contains changes to be included in the next version.
  * The actual version number should be added in the variable $version.
  */
-$version = '';
+$version = 'xx.xx.x';
 $errorMessage = '';
 
 // TODO add your functions here
@@ -49,12 +49,6 @@ try {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
-        customContext: [
-            'exception' => [
-                'error_message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString()
-            ]
-        ],
         exception: $exception
     );
     try {
@@ -65,20 +59,15 @@ try {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            customContext: [
-                'error_to_rollback' => $errorMessage,
-                'exception' => [
-                    'error_message' => $rollbackException->getMessage(),
-                    'trace' => $rollbackException->getTraceAsString()
-                ]
-            ],
             exception: $rollbackException
         );
+
         throw new \Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
+
     throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

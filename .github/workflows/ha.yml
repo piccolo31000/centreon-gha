@@ -16,8 +16,6 @@ on:
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
-      - "!centreon-ha/veracode.json"
-      - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
       - dev-[2-9][0-9].[0-9][0-9].x
@@ -26,8 +24,6 @@ on:
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
-      - "!centreon-ha/veracode.json"
-      - "!centreon-ha/.veracode-exclusions"
 
 env:
   module: ha
@@ -134,6 +130,7 @@ jobs:
     strategy:
       matrix:
         distrib: [bookworm]
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
