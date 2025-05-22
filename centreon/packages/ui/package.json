@@ -112,7 +112,7 @@
     "@lexical/list": "^0.21.0",
     "@lexical/react": "^0.21.0",
     "@lexical/rich-text": "^0.21.0",
-    "@lexical/selection": "^0.21.0",
+    "@lexical/selection": "^0.31.2",
     "@lexical/utils": "^0.21.0",
     "@mui/material": "^6.2.0",
     "@react-spring/web": "^9.7.5",
