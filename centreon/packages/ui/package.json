@@ -27,7 +27,10 @@
     "type": "git",
     "url": "git+https://github.com/centreon/centreon.git"
   },
-  "keywords": ["centreon", "react"],
+  "keywords": [
+    "centreon",
+    "react"
+  ],
   "author": {
     "name": "centreon@centreon.com"
   },
@@ -43,7 +46,12 @@
     "./fonts/*": "./src/fonts/*",
     "./test/testRenderer": "./test/testRenderer.tsx"
   },
-  "files": ["package.json", "src/*", "public/*", "test/*"],
+  "files": [
+    "package.json",
+    "src/*",
+    "public/*",
+    "test/*"
+  ],
   "devDependencies": {
     "@cypress/react": "^9.0.0",
     "@cypress/webpack-dev-server": "^4.0.1",
@@ -134,7 +142,7 @@
     "lexical": "^0.27.0",
     "notistack": "^3.0.2",
     "numeral": "^2.0.6",
-    "ramda": "0.30.1",
+    "ramda": "0.31.3",
     "react-grid-layout": "^1.5.0",
     "react-resizable": "^3.0.5",
     "react-router": "7",
@@ -147,6 +155,8 @@
     "output": "./junit.xml"
   },
   "msw": {
-    "workerDirectory": ["public"]
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
