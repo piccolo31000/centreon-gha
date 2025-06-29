@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89685a9df17de7b34f36bd857a1e5ef6",
+    "content-hash": "22ebd47abaafc2242335e8ece9e418b3",
     "packages": [
         {
             "name": "amphp/amp",
@@ -5305,16 +5305,16 @@
         },
         {
             "name": "symfony/http-kernel",
-            "version": "v6.4.19",
+            "version": "v6.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
-                "reference": "88f2c9f7feff86bb7b9105c5151bc2c1404cd64c"
+                "reference": "2bb2cba685aabd859f22cf6946554e8e7f3c329a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/88f2c9f7feff86bb7b9105c5151bc2c1404cd64c",
-                "reference": "88f2c9f7feff86bb7b9105c5151bc2c1404cd64c",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/2bb2cba685aabd859f22cf6946554e8e7f3c329a",
+                "reference": "2bb2cba685aabd859f22cf6946554e8e7f3c329a",
                 "shasum": ""
             },
             "require": {
@@ -5399,7 +5399,7 @@
             "description": "Provides a structured process for converting a Request into a Response",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-kernel/tree/v6.4.19"
+                "source": "https://github.com/symfony/http-kernel/tree/v6.4.23"
             },
             "funding": [
                 {
@@ -5415,7 +5415,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-02-26T10:51:37+00:00"
+            "time": "2025-06-28T08:14:51+00:00"
         },
         {
             "name": "symfony/lock",
