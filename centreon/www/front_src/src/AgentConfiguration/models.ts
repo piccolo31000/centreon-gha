@@ -28,6 +28,8 @@ export interface TelegrafConfiguration {
 }
 
 export interface HostConfiguration {
+  id: number;
+  name: string;
   address: string;
   port: number;
   pollerCaCertificate: string | null;
@@ -35,11 +37,13 @@ export interface HostConfiguration {
 }
 
 export interface CMAConfiguration {
-  isReverse: boolean;
+  agentInitiated: boolean;
+  pollerInitiated: boolean;
   otelPublicCertificate: string | null;
   otelCaCertificate: string | null;
   otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
+  tokens?: Array<{ name: string; creatorId: number }>;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -60,12 +64,14 @@ export interface HostConfigurationToAPI {
 }
 
 export interface CMAConfigurationAPI {
-  is_reverse: boolean;
+  agent_initiated: boolean;
+  poller_initiated: boolean;
   otel_public_certificate: string | null;
   otel_ca_certificate: string | null;
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
   connection_mode: string;
+  tokens?: Array<{ name: string; creatorId: number }>; // optional for now
 }
 
 export interface AgentConfiguration

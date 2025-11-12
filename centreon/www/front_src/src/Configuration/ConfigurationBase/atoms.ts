@@ -1,7 +1,6 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
-import { Configuration, Filters } from '../models';
-import { columnsAtomKey, filtersAtomKey } from './constants';
+import { Configuration } from '../models';
+
 import { ModalState } from './models';
 
 export const configurationAtom = atom<Configuration | null>({
@@ -10,12 +9,6 @@ export const configurationAtom = atom<Configuration | null>({
   filtersInitialValues: { name: '' },
   defaultSelectedColumnIds: []
 });
-
-export const filtersAtom = atomWithStorage<Filters>(filtersAtomKey, {
-  name: ''
-});
-
-export const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
 
 export const modalStateAtom = atom<ModalState>({
   id: null,

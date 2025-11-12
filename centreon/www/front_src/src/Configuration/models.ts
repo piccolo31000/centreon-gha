@@ -1,11 +1,19 @@
 import { Column, Group, InputProps } from '@centreon/ui';
 import { ObjectSchema } from 'yup';
 
+import type { PrimitiveAtom } from 'jotai';
+
+export type NamedEntity = {
+  id: number;
+  name: string;
+};
+
 export enum ResourceType {
   Host = 'host',
   Service = 'service',
   HostGroup = 'host group',
-  ServiceGroup = 'service group'
+  ServiceGroup = 'service group',
+  AdditionalConfigurations = 'additional configuration'
 }
 
 export interface Form {
@@ -21,32 +29,65 @@ export type Filters = {
   disabled?: boolean;
 } & Record<string, string | boolean>;
 
-export interface ConfigurationBase {
+export interface Actions {
+  delete?: boolean;
+  duplicate?: boolean;
+  enableDisable?: boolean;
+  massive?:
+    | boolean
+    | {
+        delete?: boolean;
+        duplicate?: boolean;
+        enable?: boolean;
+        disable?: boolean;
+      };
+  edit?: boolean;
+  viewDetails?: boolean;
+}
+
+export interface ConfigurationBase<TFilters> {
   resourceType: ResourceType;
   columns: Array<Column>;
   form: Form;
   api: APIType;
   filtersConfiguration: Array<FilterConfiguration>;
-  filtersInitialValues: Filters;
+  filtersInitialValues: TFilters;
   defaultSelectedColumnIds: Array<string>;
-  hasWriteAccess: boolean;
+  actions?: Actions;
+  labels: {
+    title: string;
+    welcomePage: {
+      title: string;
+      description?: string;
+      actions: {
+        create: string;
+      };
+    };
+  };
+  columnsAtomKey: string;
+  filtersAtomKey: string;
+  selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
+  filtersAtom: PrimitiveAtom<TFilters>;
+  isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
 }
 
 export enum FieldType {
   Text = 'text',
-  Status = 'status'
+  Status = 'status',
+  MultiAutocomplete = 'multiAutocomplete',
+  MultiConnectedAutocomplete = 'multiConnectedAutocomplete'
 }
 
 export interface Endpoints {
   getAll: string;
-  getOne: ({ id }) => string;
-  deleteOne: ({ id }) => string;
-  delete: string;
-  duplicate: string;
-  enable: string;
-  disable: string;
-  create: string;
-  update: ({ id }) => string;
+  getOne?: ({ id }) => string;
+  deleteOne?: ({ id }) => string;
+  delete?: string;
+  duplicate?: string;
+  enable?: string;
+  disable?: string;
+  create?: string;
+  update?: ({ id }) => string;
 }
 
 export interface APIType {
@@ -62,6 +103,8 @@ export interface FilterConfiguration {
   name: string;
   fieldName?: string;
   fieldType: FieldType;
+  options?: Array<{ id: number | string; name: string }>;
+  getEndpoint?: (parametes) => string;
 }
 
 export interface Configuration {
@@ -70,4 +113,5 @@ export interface Configuration {
   filtersConfiguration?: Array<FilterConfiguration>;
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
+  actions?: Actions;
 }

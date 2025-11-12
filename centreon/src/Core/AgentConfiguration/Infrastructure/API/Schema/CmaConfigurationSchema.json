@@ -11,14 +11,19 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-                "is_reverse",
+                "agent_initiated",
+                "poller_initiated",
                 "otel_public_certificate",
                 "otel_ca_certificate",
                 "otel_private_key",
-                "hosts"
+                "hosts",
+                "tokens"
             ],
             "properties": {
-                "is_reverse": {
+                "agent_initiated": {
+                    "type": "boolean"
+                },
+                "poller_initiated": {
                     "type": "boolean"
                 },
                 "otel_public_certificate": {
@@ -39,16 +44,38 @@
                         "string"
                     ]
                 },
+                "tokens": {
+                    "type": "array",
+                    "items": {
+                        "required": [
+                            "name",
+                            "creator_id"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "creator_id": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
                 "hosts": {
                     "type": "array",
                     "items": {
                         "required": [
                             "address",
+                            "id",
                             "port",
                             "poller_ca_certificate",
-                            "poller_ca_name"
+                            "poller_ca_name",
+                            "token"
                         ],
                         "properties": {
+                            "id": {
+                                "type": ["integer"]
+                            },
                             "address": {
                                 "type": "string"
                             },
@@ -66,6 +93,20 @@
                                     "null",
                                     "string"
                                 ]
+                            },
+                            "token": {
+                                "type": [
+                                    "null",
+                                    "object"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "creator_id": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     }

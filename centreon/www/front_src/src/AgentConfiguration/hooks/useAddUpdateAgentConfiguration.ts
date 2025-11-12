@@ -7,7 +7,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
-import { equals, omit, pluck } from 'ramda';
+import { equals, map, omit, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   getAgentConfigurationEndpoint,
@@ -82,7 +82,16 @@ const adaptCMAConfigurationToAPI = (
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
-      is_reverse: configuration.isReverse,
+      agent_initiated: configuration.agentInitiated,
+      poller_initiated: configuration.pollerInitiated,
+      tokens:
+        equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
+        !configuration.agentInitiated
+          ? []
+          : map(
+              ({ name, creatorId }) => ({ name, creator_id: creatorId }),
+              agentConfiguration.configuration.tokens
+            ),
       otel_ca_certificate: getFieldBasedOnCertificate(
         configuration.otelCaCertificate
       ),
@@ -93,12 +102,21 @@ const adaptCMAConfigurationToAPI = (
         configuration.otelPrivateKey
       ),
       hosts: configuration.hosts.map((host) => ({
+        id: host.id,
         address: host.address,
         port: host.port,
         poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),
         poller_ca_certificate: getFieldBasedOnCertificate(
           host.pollerCaCertificate
-        )
+        ),
+        token:
+          equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
+          !configuration.pollerInitiated
+            ? null
+            : {
+                name: host?.token?.name,
+                creator_id: host?.token?.creatorId
+              }
       }))
     }
   };
@@ -142,7 +160,9 @@ export const useAddUpdateAgentConfiguration =
               : labelAgentConfigurationCreated
           )
         );
-        queryClient.invalidateQueries({ queryKey: ['agent-configurations'] });
+        queryClient.invalidateQueries({
+          queryKey: ['listAgentConfigurations']
+        });
         setOpenFormModal(null);
         setAgentTypeForm(null);
       }

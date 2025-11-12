@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
     public function findDashboardContactSharesByRequestParameter(
         Dashboard $dashboard,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
         $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -139,7 +139,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
     public function findDashboardContactGroupSharesByRequestParameter(
         Dashboard $dashboard,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
         $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -247,7 +247,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     public function findDashboardsContactShares(Dashboard ...$dashboards): array
     {
-        if ([] === $dashboards) {
+        if ($dashboards === []) {
             return [];
         }
 
@@ -307,7 +307,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     public function findDashboardsContactSharesByContactIds(array $contactIds, Dashboard ...$dashboards): array
     {
-        if ([] === $dashboards) {
+        if ($dashboards === []) {
             return [];
         }
 
@@ -369,7 +369,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     public function findDashboardsContactGroupShares(Dashboard ...$dashboards): array
     {
-        if ([] === $dashboards) {
+        if ($dashboards === []) {
             return [];
         }
 
@@ -435,7 +435,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      * @inheritDoc
      */
     public function findContactsWithAccessRightByRequestParameters(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -448,8 +448,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 GROUP_CONCAT(topology.topology_name) as topologies,
                 c.contact_name,
                 c.contact_id,
-                c.contact_email,
-                ag.acl_group_name
+                c.contact_email
             FROM `:db`.contact c
             LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                 ON cgcr.contact_contact_id = c.contact_id
@@ -468,17 +467,29 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 ON topology.topology_id = acltr.topology_topology_id
             LEFT JOIN `:db`.topology parent
                 ON topology.topology_parent = parent.topology_page
-            WHERE
-                c.contact_admin = '0'
+            SQL_WRAP;
+
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $query .= $searchRequest !== null
+            ? <<<SQL_WRAP
+
+                {$searchRequest}
+                AND c.contact_admin = '0'
                 AND c.contact_oreon = '1'
                 AND parent.topology_name = 'Dashboards'
                 AND topology.topology_name IN ('Viewer','Administrator','Creator')
                 AND acltr.access_right IS NOT NULL
-            SQL_WRAP;
+                SQL_WRAP
+            : <<<'SQL_WRAP'
 
-        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-        $query .= $searchRequest !== null ? ' AND ' . $searchRequest : '';
-        $query .= ' GROUP BY c.contact_id, ag.acl_group_name';
+                WHERE c.contact_admin = '0'
+                AND c.contact_oreon = '1'
+                AND parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                AND acltr.access_right IS NOT NULL
+                SQL_WRAP;
+
+        $query .= ' GROUP BY c.contact_id, c.contact_name';
 
         $query .= $sqlTranslator->translatePaginationToSql();
 
@@ -515,7 +526,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         foreach ($contactIds as $key => $contactId) {
             $bind[':contact_id' . $key] = $contactId;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return [];
         }
 
@@ -698,7 +709,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $bind[':contact_group' . $key] = $contactGroupId;
         }
 
-        if ([] === $bind) {
+        if ($bind === []) {
             return [];
         }
 
@@ -749,7 +760,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     public function findContactsWithAccessRightsByContactGroupsAndRequestParameters(
         array $contactGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
         try {
             if ($contactGroups === []) {
@@ -757,7 +768,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             }
 
             $contactGroupIds = array_map(
-                static fn(ContactGroup $contactGroup): int => $contactGroup->getId(),
+                static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
                 $contactGroups
             );
 
@@ -847,7 +858,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
         RequestParametersInterface $requestParameters,
-        array $aclGroupIds
+        array $aclGroupIds,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
@@ -862,7 +873,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $bind[':acl_group_' . $key] = $aclGroupId;
         }
 
-        if ([] === $bind) {
+        if ($bind === []) {
             return [];
         }
 
@@ -941,7 +952,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     public function findContactGroupsByUserAndRequestParameters(
         RequestParametersInterface $requestParameters,
-        int $contactId
+        int $contactId,
     ): array {
         try {
             $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -1000,7 +1011,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     public function findContactGroupsWithAccessRightByUserAndRequestParameters(
         RequestParametersInterface $requestParameters,
-        int $contactId
+        int $contactId,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
@@ -1130,7 +1141,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 ? explode(',', $contactRole['topologies'])
                 : [];
             $roles = array_map(
-                static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                     $topology
                 ),
                 $topologies
@@ -1160,7 +1171,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     {
         $topologies = explode(',', $contactRole['topologies']);
         $roles = array_map(
-            static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+            static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                 $topology
             ),
             $topologies
@@ -1185,7 +1196,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     private function getContactGroupShares(ContactInterface $contact, Dashboard ...$dashboards): array
     {
-        if ([] === $dashboards) {
+        if ($dashboards === []) {
             return [];
         }
 
@@ -1255,7 +1266,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     private function getContactShares(ContactInterface $contact, Dashboard ...$dashboards): array
     {
-        if ([] === $dashboards) {
+        if ($dashboards === []) {
             return [];
         }
 

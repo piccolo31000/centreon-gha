@@ -166,6 +166,12 @@ Cypress.Commands.add('getContainersLogs', () => {
   return cy.task('getContainersLogs');
 });
 
+Cypress.Commands.add('getContainerMappedPort', (containerName: string, containerPort: number) => {
+  cy.log(`Getting mapped port ${containerPort} of container ${containerName}`);
+
+  return cy.task('getContainerMappedPort', { containerName, containerPort });
+});
+
 interface CopyFromContainerProps {
   destination: string;
   name?: string;
@@ -548,8 +554,8 @@ Cypress.Commands.add(
     cy.log(`Getting logs from container ${name} ...`);
 
     return cy.getLogDirectory().then((logDirectory) => {
-      let sourcePhpLogs = '/var/log/php8.1-fpm-centreon-error.log';
-      let targetPhpLogs = `${logDirectory}/php8.1-fpm-centreon-error.log`;
+      let sourcePhpLogs = '/var/log/php8.2-fpm-centreon-error.log';
+      let targetPhpLogs = `${logDirectory}/php8.2-fpm-centreon-error.log`;
       let sourceApacheLogs = '/var/log/apache2';
       let targetApacheLogs = `${logDirectory}/apache2`;
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
@@ -916,6 +922,7 @@ declare global {
       getContainerId: (containerName: string) => Cypress.Chainable;
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
+      getContainerMappedPort: (containerName: string, containerPort: number) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;

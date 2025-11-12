@@ -112,7 +112,10 @@ const Chart = ({
   limitLegend,
   skipIntersectionObserver,
   transformMatrix,
-  additionalLines
+  additionalLines,
+  min,
+  max,
+  boundariesUnit
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -191,7 +194,10 @@ const Chart = ({
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
         thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: graphHeight - margin.bottom
+        valueGraphHeight: graphHeight - margin.bottom,
+        min,
+        max,
+        boundariesUnit
       }),
     [
       linesGraph,
@@ -246,6 +252,8 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
+  const hasSecondUnit = useMemo(() => Boolean(secondUnit), [secondUnit]);
+
   if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
@@ -269,7 +277,8 @@ const Chart = ({
             legendHeight: legend?.height,
             mode: legend?.mode,
             placement: legend?.placement,
-            renderExtraComponent: legend?.renderExtraComponent
+            renderExtraComponent: legend?.renderExtraComponent,
+            secondaryClick: legend?.secondaryClick
           }}
           legendRef={legendRef}
           limitLegend={limitLegend}
@@ -299,7 +308,7 @@ const Chart = ({
                 timeSeries={timeSeries}
                 xScale={xScale}
                 maxAxisCharacters={maxLeftAxisCharacters}
-                hasSecondUnit={Boolean(secondUnit)}
+                hasSecondUnit={hasSecondUnit}
               >
                 <>
                   {!isEmpty(linesDisplayedAsBar) && (
@@ -327,6 +336,8 @@ const Chart = ({
                       width={graphWidth}
                       xScale={xScale}
                       yScalesPerUnit={yScalesPerUnit}
+                      hasSecondUnit={hasSecondUnit}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
                       {...shapeLines}
                     />
                   )}
@@ -355,6 +366,8 @@ const Chart = ({
                     }}
                     zoomData={{ ...zoomPreview }}
                     transformMatrix={transformMatrix}
+                    hasSecondUnit={hasSecondUnit}
+                    maxLeftAxisCharacters={maxLeftAxisCharacters}
                   />
                   {thresholds?.enabled && (
                     <Thresholds

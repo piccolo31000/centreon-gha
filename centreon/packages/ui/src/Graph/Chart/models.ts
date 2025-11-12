@@ -122,6 +122,9 @@ export interface LineChartProps {
   zoomPreview?: InteractedZone;
   skipIntersectionObserver?: boolean;
   additionalLines?: Array<AdditionalLineProps>;
+  min?: number;
+  max?: number;
+  boundariesUnit?: string;
 }
 
 export interface Area {
@@ -172,6 +175,11 @@ export interface LegendModel {
   mode: 'grid' | 'list';
   placement: 'bottom' | 'left' | 'right';
   renderExtraComponent?: ReactNode;
+  secondaryClick?: (props: {
+    element: EventTarget | null;
+    metricId: number | string;
+    position: [number, number];
+  }) => void;
 }
 
 export interface GetDate {

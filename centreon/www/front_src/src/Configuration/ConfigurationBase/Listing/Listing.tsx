@@ -1,23 +1,38 @@
 import { Column, MemoizedListing } from '@centreon/ui';
+import type { PrimitiveAtom } from 'jotai';
 
 import { useAtom } from 'jotai';
+import { JSX } from 'react';
+import { Actions } from '../../models';
 import ActionsBar from './ActionsBar';
 import useColumns from './Columns/useColumns';
 import { selectedRowsAtom } from './atoms';
 import useListing from './useListing';
-import useLoadData from './useLoadData';
 
-interface Props {
+interface Props<TFilters> {
   columns: Array<Column>;
   hasWriteAccess: boolean;
+  actions?: Actions;
+  isLoading: boolean;
+  filtersAtomKey: string;
+  filtersAtom: PrimitiveAtom<TFilters>;
+  data;
+  selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
 }
 
-const Listing = ({ columns, hasWriteAccess }: Props): JSX.Element => {
+const Listing = <TFilters,>({
+  columns,
+  hasWriteAccess,
+  actions,
+  isLoading,
+  data,
+  selectedColumnIdsAtom,
+  filtersAtom,
+  filtersAtomKey
+}: Props<TFilters>): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
   const { staticColumns } = useColumns();
-
-  const { isLoading, data } = useLoadData();
 
   const {
     changePage,
@@ -31,12 +46,19 @@ const Listing = ({ columns, hasWriteAccess }: Props): JSX.Element => {
     selectedColumnIds,
     openEditModal,
     disableRowCondition
-  } = useListing();
+  } = useListing({ selectedColumnIdsAtom });
 
   return (
     <MemoizedListing
-      checkable={hasWriteAccess}
-      actions={<ActionsBar hasWriteAccess={hasWriteAccess} />}
+      checkable={hasWriteAccess && !!actions?.massive}
+      actions={
+        <ActionsBar<TFilters>
+          hasWriteAccess={hasWriteAccess}
+          hasMassiveActions={!!actions?.massive}
+          filtersAtom={filtersAtom}
+          filtersAtomKey={filtersAtomKey}
+        />
+      }
       columnConfiguration={{
         selectedColumnIds,
         sortable: true

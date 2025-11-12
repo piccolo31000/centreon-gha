@@ -4,10 +4,12 @@ import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
+import dataMissingPoint from '../mockedData/dataWithMissingPoint.json';
 import dataLastWeek from '../mockedData/lastWeek.json';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
+import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 
 import BarChart, { BarChartProps } from './BarChart';
 
@@ -30,10 +32,20 @@ const initialize = ({
   tooltip,
   axis,
   orientation,
-  barStyle
+  barStyle,
+  min,
+  max
 }: Pick<
   BarChartProps,
-  'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip' | 'start'
+  | 'data'
+  | 'legend'
+  | 'axis'
+  | 'barStyle'
+  | 'orientation'
+  | 'tooltip'
+  | 'start'
+  | 'min'
+  | 'max'
 >): void => {
   cy.adjustViewport();
 
@@ -47,6 +59,8 @@ const initialize = ({
           legend={legend}
           orientation={orientation ?? 'horizontal'}
           tooltip={tooltip}
+          min={min}
+          max={max}
           {...defaultArgs}
         />
       </div>
@@ -138,8 +152,6 @@ describe('Bar chart', () => {
       cy.contains(':40 AM').should('be.visible');
 
       cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it(`displays bar chart ${orientation}ly with a mix of stacked and non-stacked data centered in zero`, () => {
@@ -250,8 +262,6 @@ describe('Bar chart', () => {
     cy.contains('0.11 ms').should('be.visible');
 
     cy.findByTestId('stacked-bar-3-0-0.16196').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays a tooltip with a single metric when a stacked bar is hovered and a prop is set', () => {
@@ -290,5 +300,35 @@ describe('Bar chart', () => {
 
     cy.contains('05/31/2023').should('be.visible');
     cy.contains('06/07/2023').should('be.visible');
+  });
+
+  it('displays the bar chart according to min and max boundaries', () => {
+    initialize({
+      data: dataLastWeek,
+      min: -0.05,
+      max: 1
+    });
+
+    cy.contains('05/31/2023').should('be.visible');
+    cy.contains('06/07/2023').should('be.visible');
+    cy.contains('1 s').should('be.visible');
+    cy.contains('1%').should('be.visible');
+  });
+
+  it('displays the stacked bar chart correctly when a point is missing compare to the time serie', () => {
+    initialize({ data: dataMissingPoint });
+
+    cy.findByTestId('stacked-bar-2-0-139').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the stacked bar chart with bars stacked together', () => {
+    initialize({ data: dataPingServiceLinesStackKeys });
+
+    cy.findByTestId('stacked-bar-3-0-0.05336').should('be.visible');
+    cy.findByTestId('stacked-bar-4-0-0.06684').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

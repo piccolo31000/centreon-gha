@@ -1,51 +1,86 @@
 import { Button } from '@centreon/ui/components';
-import { useTranslation } from 'react-i18next';
-import { labelClear, labelSearch } from '../../translatedLabels';
-import { useFilterStyles } from '../Filters.styles';
-
-import useFilters from './useFilters';
-
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
-import Status from './Fields/Status';
-import Text from './Fields/Text';
+import {
+  MultiAutocomplete,
+  MultiConnectedAutocomplete,
+  Status,
+  Text
+} from './Fields';
 
-const Filters = (): JSX.Element => {
+import { useFilterStyles } from '../Filters.styles';
+import useFilters from './useFilters';
+
+import { labelClear, labelSearch } from '../../translatedLabels';
+
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+  filtersAtomKey: string;
+}
+
+const Filters = <TFilters,>({
+  filtersAtom,
+  filtersAtomKey
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const { isLoading } = useLoadData();
+  const [filters, setFilters] = useAtom(filtersAtom);
 
-  const {
-    reset,
-    isClearDisabled,
-    change,
-    changeCheckbox,
-    reload,
-    filtersConfiguration,
-    filters
-  } = useFilters();
+  const { isLoading } = useLoadData({ filtersAtom, filtersAtomKey });
+
+  const { reset, isClearDisabled, reload, filtersConfiguration } = useFilters({
+    filters,
+    setFilters
+  });
 
   return (
     <div className={classes.additionalFilters} data-testid="advanced-filters">
       {filtersConfiguration?.map((filter) => {
         if (equals(filter.fieldType, FieldType.Status))
           return (
-            <Status
-              change={changeCheckbox}
-              filters={filters}
+            <Status<TFilters>
               key={filter.name}
+              setFilters={setFilters}
+              filters={filters}
+            />
+          );
+        if (equals(filter.fieldType, FieldType.MultiAutocomplete))
+          return (
+            <MultiAutocomplete<TFilters>
+              label={filter.name}
+              name={filter.fieldName}
+              options={filter.options}
+              key={filter.name}
+              setFilters={setFilters}
+              filters={filters}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.MultiConnectedAutocomplete))
+          return (
+            <MultiConnectedAutocomplete<TFilters>
+              label={filter.name}
+              name={filter.fieldName}
+              getEndpoint={filter.getEndpoint}
+              key={filter.name}
+              setFilters={setFilters}
+              filters={filters}
             />
           );
 
         return (
-          <Text
+          <Text<TFilters>
             label={filter.name}
             name={filter.fieldName}
-            change={change}
-            filters={filters}
             key={filter.name}
+            filters={filters}
+            setFilters={setFilters}
           />
         );
       })}

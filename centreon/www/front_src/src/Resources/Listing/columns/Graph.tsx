@@ -1,28 +1,30 @@
 import dayjs from 'dayjs';
-import { Suspense, useState } from 'react';
-
+import { ReactElement, Suspense, useState } from 'react';
 import { path, isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import IconGraph from '@mui/icons-material/BarChart';
 import { Paper } from '@mui/material';
 
-import type { ComponentColumnProps, LineChartData } from '@centreon/ui';
 import {
+  type ComponentColumnProps,
   IconButton,
   LineChart,
+  type LineChartData,
   LoadingSkeleton,
+  lastDayPeriod,
   useFetchQuery
 } from '@centreon/ui';
 
-import { lastDayPeriod } from '@centreon/ui';
 import FederatedComponent from '../../../components/FederatedComponents';
 import type { ResourceDetails } from '../../Details/models';
 import type { Resource } from '../../models';
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
+import { graphsCapNumber } from '../../constants';
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
+import TooManyElementsCard from '../../TooManyElementsCard';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -41,7 +43,7 @@ interface GraphProps {
   row: Resource | ResourceDetails;
 }
 
-const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
+const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const start = lastDayPeriod.getStart().toISOString();
@@ -49,7 +51,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
   const graphEndpoint = `${endpoint}?start=${start}&end=${end}`;
 
-  const { data } = useFetchQuery<LineChartData>({
+  const { data, isLoading, isFetching } = useFetchQuery<LineChartData>({
     getEndpoint: () => graphEndpoint,
     getQueryKey: () => ['chartLineColumns', endpoint],
     queryOptions: {
@@ -64,6 +66,18 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
+  const metricsCount = data?.metrics.length ?? 0;
+  if (metricsCount > graphsCapNumber) {
+    return (
+      <Suspense fallback={<LoadingSkeleton height="100%" />}>
+        <TooManyElementsCard
+          listing={true}
+          title={data?.global.title ?? ''}
+        />
+      </Suspense>
+    );
+  }
+
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
       <FederatedComponent
@@ -73,6 +87,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
         getShapeLines={getShapeLines}
       />
       <LineChart
+        loading={isFetching || isLoading || !data}
         data={data}
         end={end}
         height={200}
@@ -84,6 +99,9 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
           displayGuidingLines: false,
           displayTooltipsGuidingLines: false
         }}
+        timeShiftZones={{
+          enable: false
+        }}
         {...rest}
       />
     </Suspense>
@@ -92,7 +110,7 @@ const Graph = ({ row, endpoint }: GraphProps): JSX.Element => {
 
 const renderChip =
   ({ onClick, label, className }) =>
-  (): JSX.Element => (
+  (): ReactElement => (
     <IconButton
       ariaLabel={label}
       className={className}
@@ -110,11 +128,11 @@ interface Props {
 
 const GraphColumn = ({
   onClick
-}: Props): ((props: ComponentColumnProps) => JSX.Element | null) => {
+}: Props): ((props: ComponentColumnProps) => ReactElement | null) => {
   const GraphHoverChip = ({
     row,
     isHovered
-  }: ComponentColumnProps): JSX.Element | null => {
+  }: ComponentColumnProps): ReactElement | null => {
     const { classes } = useStyles();
 
     const { type } = row;
@@ -143,7 +161,7 @@ const GraphColumn = ({
           isHovered={isHovered}
           label={label}
         >
-          {({ isChipHovered }): JSX.Element => {
+          {({ isChipHovered }): ReactElement => {
             if (isHost || not(isChipHovered) || not(isHovered)) {
               return <div />;
             }

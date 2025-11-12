@@ -1,4 +1,4 @@
-import type { MutableRefObject } from 'react';
+import { type MutableRefObject, ReactElement, useMemo } from 'react';
 
 import { Event } from '@visx/visx';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
@@ -9,9 +9,11 @@ import {
   find,
   isEmpty,
   isNil,
+  isNotNil,
   keys,
   map,
   negate,
+  omit,
   pick,
   pipe,
   pluck,
@@ -37,6 +39,10 @@ import type {
   InteractedZone as ZoomPreviewModel
 } from '../models';
 
+import {
+  computPixelsToShiftMouse,
+  computeGElementMarginLeft
+} from '../../common/utils';
 import Annotations from './Annotations';
 import type { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
@@ -80,6 +86,9 @@ interface Props {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
   };
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
+  additionalZoomMargin?: number;
 }
 
 const InteractionWithGraph = ({
@@ -87,8 +96,11 @@ const InteractionWithGraph = ({
   commonData,
   annotationData,
   timeShiftZonesData,
-  transformMatrix
-}: Props): JSX.Element => {
+  transformMatrix,
+  hasSecondUnit,
+  maxLeftAxisCharacters,
+  additionalZoomMargin = 0
+}: Props): ReactElement => {
   const { classes } = useStyles();
 
   const setEventMouseDown = useSetAtom(eventMouseDownAtom);
@@ -142,6 +154,15 @@ const InteractionWithGraph = ({
     setEventMouseDown(event);
   };
 
+  const graphMarginLeft = useMemo(
+    () =>
+      computeGElementMarginLeft({
+        maxCharacters: maxLeftAxisCharacters,
+        hasSecondUnit
+      }) + additionalZoomMargin,
+    [additionalZoomMargin, maxLeftAxisCharacters, hasSecondUnit]
+  );
+
   const updateMousePosition = (pointPosition: MousePosition): void => {
     if (isNil(pointPosition)) {
       changeMousePosition({
@@ -151,10 +172,12 @@ const InteractionWithGraph = ({
 
       return;
     }
+    const pixelToShift = computPixelsToShiftMouse(xScale);
     const timeValue = getTimeValue({
       timeSeries,
-      x: pointPosition[0],
-      xScale
+      x: pointPosition[0] - pixelToShift,
+      xScale,
+      marginLeft: graphMarginLeft
     });
 
     if (isNil(timeValue)) {
@@ -198,6 +221,39 @@ const InteractionWithGraph = ({
           unit: (lineData as Line).unit,
           yScalesPerUnit
         });
+
+        if (isNotNil(lineData?.stackOrder)) {
+          const test = Object.entries(omit(['timeTick'], timeValue)).reduce(
+            (acc, [key, value]) => {
+              const line = getLineForMetric({
+                lines,
+                metric_id: Number(key)
+              });
+
+              const isBelowStackOrder =
+                isNotNil(line?.stackOrder) &&
+                (line?.stackOrder as number) >= (lineData.stackOrder as number);
+
+              if (isBelowStackOrder) {
+                return acc + value;
+              }
+
+              return acc;
+            },
+            0
+          );
+
+          const y0 = yScale(test);
+
+          const diffBetweenY0AndPointPosition = Math.abs(
+            y0 - margin.top - (graphHeight - pointPosition[1])
+          );
+
+          return {
+            ...acc,
+            [metricId]: diffBetweenY0AndPointPosition
+          };
+        }
 
         const y0 = yScale(value);
 
@@ -248,6 +304,8 @@ const InteractionWithGraph = ({
           graphHeight={graphHeight}
           graphWidth={graphWidth}
           xScale={xScale}
+          graphSvgRef={graphSvgRef}
+          graphMarginLeft={graphMarginLeft}
         />
       )}
       {displayEventAnnotations && (

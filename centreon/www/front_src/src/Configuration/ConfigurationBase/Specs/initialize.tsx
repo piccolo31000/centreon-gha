@@ -1,14 +1,20 @@
-import { Provider, createStore } from 'jotai';
+import { Provider, atom, createStore } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+
+import { capitalize } from '@mui/material';
 
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import ConfigurationBase from '..';
 import { FilterConfiguration, ResourceType } from '../../models';
+
 import {
   columns,
+  columnsAtomKey,
+  filtersAtomKey,
   filtersConfiguration,
   filtersInitialValues,
   getEndpoints,
@@ -113,6 +119,10 @@ const initialize = ({
     resources: {}
   });
 
+  const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
+  const filtersAtom = atomWithStorage(filtersAtomKey, filtersInitialValues);
+  const isWelcomePageDisplayedAtom = atom(false);
+
   const store = createStore();
 
   cy.mount({
@@ -121,33 +131,56 @@ const initialize = ({
         <SnackbarProvider>
           <TestQueryProvider>
             <Provider store={store}>
-              <ConfigurationBase
-                resourceType={resourceType}
-                columns={columns}
-                hasWriteAccess={true}
-                form={{
-                  groups,
-                  inputs,
-                  defaultValues: {
-                    name: '',
-                    alias: '',
-                    coordinates: ''
-                  }
-                }}
-                api={{
-                  endpoints: getEndpoints(resource),
-                  decoders: { getAll: resourceDecoderListDecoder },
-                  adapter: (data) => data
-                }}
-                filtersConfiguration={filters}
-                filtersInitialValues={filtersInitialValues}
-                defaultSelectedColumnIds={[
-                  'name',
-                  'alias',
-                  'actions',
-                  'is_activated'
-                ]}
-              />
+              <div style={{ height: '100vh' }}>
+                <ConfigurationBase
+                  isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+                  selectedColumnIdsAtom={selectedColumnIdsAtom}
+                  filtersAtom={filtersAtom}
+                  filtersAtomKey={filtersAtomKey}
+                  columnsAtomKey={columnsAtomKey}
+                  resourceType={resourceType}
+                  columns={columns}
+                  form={{
+                    groups,
+                    inputs,
+                    defaultValues: {
+                      name: '',
+                      alias: '',
+                      coordinates: ''
+                    }
+                  }}
+                  api={{
+                    endpoints: getEndpoints(resource),
+                    decoders: { getAll: resourceDecoderListDecoder },
+                    adapter: (data) => data
+                  }}
+                  filtersConfiguration={filters}
+                  filtersInitialValues={filtersInitialValues}
+                  defaultSelectedColumnIds={[
+                    'name',
+                    'alias',
+                    'actions',
+                    'is_activated'
+                  ]}
+                  actions={{
+                    massive: true,
+                    enableDisable: true,
+                    delete: true,
+                    duplicate: true,
+                    edit: true,
+                    viewDetails: true
+                  }}
+                  labels={{
+                    title: `${capitalize(resourceType)}s`,
+                    welcomePage: {
+                      title: 'Welcome to configuration base',
+                      actions: {
+                        create: 'Add configuration base'
+                      }
+                    }
+                  }}
+                />
+              </div>
             </Provider>
           </TestQueryProvider>
         </SnackbarProvider>

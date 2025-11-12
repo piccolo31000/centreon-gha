@@ -1,32 +1,34 @@
-import { Suspense } from 'react';
+import { PrimitiveAtom } from 'jotai';
+import { JSX, Suspense } from 'react';
 
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 import TuneIcon from '@mui/icons-material/Tune';
 import { Badge } from '@mui/material';
-import { useAtomValue } from 'jotai';
-import { filter, length, pipe, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { configurationAtom, filtersAtom } from '../../atoms';
 import { labelFilters } from '../../translatedLabels';
 import { useFilterStyles } from '../Filters.styles';
 import Filters from './Filters';
+import useCoutChangedFilters from './useCoutChangedFilters';
 
-const countDifferences = (defaultValues, values) =>
-  pipe(
-    toPairs,
-    filter(([key, val]) => val !== values[key]),
-    length
-  )(defaultValues);
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+  filtersAtomKey: string;
+  areAdvancedFiltersVisible: boolean;
+}
 
-const PopoverFilter = (): JSX.Element => {
+const PopoverFilter = <TFilters,>({
+  filtersAtom,
+  filtersAtomKey,
+  areAdvancedFiltersVisible
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const configuration = useAtomValue(configurationAtom);
-  const filters = useAtomValue(filtersAtom);
-  const initialValues = configuration?.filtersInitialValues;
+  const { changedFiltersCount } = useCoutChangedFilters({ filtersAtom });
 
-  const changedFiltersCount = countDifferences(initialValues, filters);
+  if (!areAdvancedFiltersVisible) {
+    return <div />;
+  }
 
   return (
     <Suspense
@@ -43,7 +45,12 @@ const PopoverFilter = (): JSX.Element => {
           popperPlacement="bottom-end"
           title={t(labelFilters)}
         >
-          {(): JSX.Element => <Filters />}
+          {(): JSX.Element => (
+            <Filters<TFilters>
+              filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+            />
+          )}
         </PopoverMenu>
       </Badge>
     </Suspense>

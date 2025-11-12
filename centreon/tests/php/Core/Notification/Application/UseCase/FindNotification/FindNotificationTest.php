@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
@@ -36,14 +37,14 @@ use Core\Notification\Application\Repository\NotificationResourceRepositoryProvi
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\FindNotification\FindNotification;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationResponse;
-use Core\Notification\Domain\Model\ConfigurationResource;
-use Core\Notification\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\ConfigurationResource;
+use Core\Notification\Domain\Model\Contact as NotificationContact;
 use Core\Notification\Domain\Model\HostEvent;
 use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\Contact as NotificationContact;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Notification\Infrastructure\API\FindNotification\FindNotificationPresenterStub;
 
@@ -54,6 +55,7 @@ beforeEach(function (): void {
     $this->repositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class);
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 });
 
 it('should present an error response when the user is not admin and doesn\'t have sufficient ACLs', function (): void {
@@ -64,6 +66,7 @@ it('should present an error response when the user is not admin and doesn\'t hav
         $contact,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
+        $this->adminResolver,
     ))(1, $this->presenter);
 
     expect($this->presenter->responseStatus)
@@ -87,6 +90,7 @@ it('should present a not found response when the notification does not exist', f
         $contact,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
+        $this->adminResolver,
     ))(1, $this->presenter);
 
     expect($this->presenter->responseStatus)
@@ -108,6 +112,7 @@ it('should present an error response when something unhandled occurs', function 
         $contact,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
+        $this->adminResolver,
     ))(1, $this->presenter);
 
     expect($this->presenter->responseStatus)
@@ -165,11 +170,18 @@ it('should get the resources with ACL calculation when the user is not admin', f
         ->expects($this->once())
         ->method('findByNotificationIdAndAccessGroups');
 
+    $this->adminResolver
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->with($contact)
+        ->willReturn(false);
+
     (new FindNotification(
         $this->notificationRepository,
         $contact,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
+        $this->adminResolver,
     ))(1, $this->presenter);
 });
 
@@ -197,6 +209,12 @@ it('should present a FindNotificationResponse when everything is OK', function (
         [new ConfigurationResource(1, 'hostgroup-resource')],
         NotificationHostEventConverter::fromBitFlags(4)
     );
+
+    $this->adminResolver
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->with($contact)
+        ->willReturn(true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -235,6 +253,7 @@ it('should present a FindNotificationResponse when everything is OK', function (
         $contact,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
+        $this->adminResolver,
     ))(1, $this->presenter);
 
     expect($this->presenter->response)

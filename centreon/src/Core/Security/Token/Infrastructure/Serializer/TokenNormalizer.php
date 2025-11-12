@@ -46,7 +46,7 @@ class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         $context[self::ALREADY_CALLED] = true;
         /** @var array<string, mixed> $response */
@@ -72,9 +72,9 @@ class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @param array<string, mixed> $context
+     * @param mixed $data
+     * @param ?string $format
      */
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
@@ -83,6 +83,17 @@ class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
         }
 
         return $data instanceof Token;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            Token::class => false,
+        ];
     }
 
     /**

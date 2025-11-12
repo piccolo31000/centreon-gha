@@ -308,6 +308,8 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelTitle).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
 
+        cy.contains('Hello world');
+
         cy.makeSnapshot();
       });
 
@@ -526,8 +528,6 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText('Show thresholds').click();
 
       cy.contains('Sort by').should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('displays general properties when a widget is selected', () => {
@@ -710,8 +710,6 @@ describe('AddEditWidgetModal', () => {
           .click();
 
         cy.findAllByText(/^Host$/).should('have.length', 1);
-
-        cy.makeSnapshot();
       });
 
       it('removes resource item when delete icon is clicked', () => {
@@ -829,7 +827,9 @@ describe('AddEditWidgetModal', () => {
               name: 'pl',
               unit: '%',
               warningHighThreshold: null,
-              warningLowThreshold: null
+              warningLowThreshold: null,
+              serviceId: 1,
+              serviceName: 'Ping'
             });
           });
       });

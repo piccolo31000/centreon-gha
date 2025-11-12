@@ -1,19 +1,19 @@
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
 
 import { useGetAll } from '../api';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 import { useMemo } from 'react';
 import { FieldType } from '../../models';
-import { configurationAtom, filtersAtom } from '../atoms';
+import { configurationAtom } from '../atoms';
 
 interface LoadDataState {
   data?;
   isLoading: boolean;
 }
 
-const useLoadData = (): LoadDataState => {
+const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const page = useAtomValue(pageAtom);
@@ -38,6 +38,21 @@ const useLoadData = (): LoadDataState => {
         const fieldName = filter.fieldName as string;
         const filterValue = filters[fieldName];
 
+        if (
+          equals(filter.fieldType, FieldType.MultiAutocomplete) ||
+          equals(filter.fieldType, FieldType.MultiConnectedAutocomplete)
+        ) {
+          return isNotNil(filterValue) && isNotEmpty(filterValue)
+            ? [
+                ...acc,
+                {
+                  field: fieldName,
+                  values: { $in: pluck('id', filterValue) }
+                }
+              ]
+            : acc;
+        }
+
         return filterValue
           ? [...acc, { field: fieldName, values: { $rg: filterValue } }]
           : acc;
@@ -53,7 +68,8 @@ const useLoadData = (): LoadDataState => {
     sortOrder,
     page,
     limit,
-    searchConditions
+    searchConditions,
+    filtersAtomKey
   });
 
   return { data, isLoading };
