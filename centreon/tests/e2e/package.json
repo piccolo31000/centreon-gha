@@ -14,7 +14,7 @@
     "ts:checks": "tsc --noEmit"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^20.0.2",
+    "@badeball/cypress-cucumber-preprocessor": "^24.0.1",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.3",
     "@biomejs/biome": "2.3.10",
     "@centreon/js-config": "24.12.1",
